@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from .forms import RegisterForm, PostForm
 from django.contrib.auth.decorators import login_required, permission_required
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import login
 
 # Create your views here.
 
@@ -13,7 +13,10 @@ def home(request):
 
 @login_required(login_url="/login")
 @permission_required("main.add_post", login_url="/login", raise_exception=True)
-def create_posts(request):
+def create_post(request):
+    # user = get_user_model().objects.get(email=request.user.email)
+    print("User can add_post:", request.user.has_perm("main.add_post"))
+
     if request.method == "POST":
         form = PostForm(request.POST)
         if form.is_valid():
@@ -33,6 +36,7 @@ def sign_up(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
+
             return redirect("/home")
     else:
         form = RegisterForm()
